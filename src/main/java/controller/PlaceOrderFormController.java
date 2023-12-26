@@ -1,7 +1,12 @@
 package controller;
 
+import bo.BoFactory;
+import bo.custom.CustomerBo;
+import bo.custom.ItemBo;
+import bo.custom.OrderBo;
 import com.jfoenix.controls.*;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
+import dao.util.FactoryType;
 import dto.CustomerDto;
 import dto.ItemDto;
 import dto.OrderDetailsDto;
@@ -18,12 +23,6 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.stage.Stage;
-import dao.custom.CustomerDao;
-import dao.custom.Impl.CustomerDaoImpl;
-import dao.custom.Impl.ItemDaoImpl;
-import dao.custom.Impl.OrderDaoImpl;
-import dao.custom.ItemDao;
-import dao.custom.OrderDao;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -52,9 +51,9 @@ public class PlaceOrderFormController {
     private List<ItemDto> items;
     private double tot = 0;
 
-    private CustomerDao customerDao = new CustomerDaoImpl();
-    private ItemDao itemDao = new ItemDaoImpl();
-    private OrderDao orderDao = new OrderDaoImpl();
+    private OrderBo orderBo = BoFactory.getInstance().getBo(FactoryType.ORDER);
+    private ItemBo itemBo = BoFactory.getInstance().getBo(FactoryType.ITEM);
+    private CustomerBo customerBo = BoFactory.getInstance().getBo(FactoryType.CUSTOMER);
 
     private ObservableList<OrderTm> tmList = FXCollections.observableArrayList();
 
@@ -90,7 +89,7 @@ public class PlaceOrderFormController {
 
     private void loadItemCodes() {
         try {
-            items = itemDao.allItems();
+            items = itemBo.allItems();
             ObservableList list = FXCollections.observableArrayList();
             for (ItemDto dto:items) {
                 list.add(dto.getCode());
@@ -105,7 +104,7 @@ public class PlaceOrderFormController {
 
     private void loadCustomerIds() {
         try {
-            customers = customerDao.allCustomers();
+            customers = customerBo.allCustomers();
             ObservableList list = FXCollections.observableArrayList();
             for (CustomerDto dto:customers) {
                 list.add(dto.getId());
@@ -130,7 +129,7 @@ public class PlaceOrderFormController {
 
     public void addToCartButtonOnAction(ActionEvent actionEvent) {
         try {
-            double amount = itemDao.getItem(cmbItemCode.getValue().toString()).getUnitPrice() * Integer.parseInt(txtQty.getText());
+            double amount = itemBo.getItem(cmbItemCode.getValue().toString()).getUnitPrice() * Integer.parseInt(txtQty.getText());
             JFXButton btn = new JFXButton("Delete");
 
             OrderTm tm = new OrderTm(
@@ -179,7 +178,7 @@ public class PlaceOrderFormController {
 
     public void generateId(){
         try {
-            OrderDto dto = orderDao.lastOrder();
+            OrderDto dto = orderBo.lastOrder();
             if (dto!=null){
                 String id = dto.getOrderId();
                 int num = Integer.parseInt(id.split("[D]")[1]);
@@ -208,7 +207,7 @@ public class PlaceOrderFormController {
 //        if (!tmList.isEmpty()){
         boolean isSaved = false;
         try {
-            isSaved = orderDao.saveOrder(new OrderDto(
+            isSaved = orderBo.saveOrder(new OrderDto(
                     lblOrderId.getText(),
                     LocalDateTime.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd")),
                     cmbCustId.getValue().toString(),

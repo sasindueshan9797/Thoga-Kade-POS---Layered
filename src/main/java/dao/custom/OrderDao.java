@@ -2,15 +2,14 @@ package dao.custom;
 
 import dao.CrudDao;
 import dto.OrderDto;
-import entity.Orders;
+import entity.Order;
 
 import java.sql.SQLException;
-import java.util.List;
 
-public interface OrderDao extends CrudDao<Orders> {
+public interface OrderDao extends CrudDao<Order> {
 
-    OrderDto lastOrder() throws SQLException, ClassNotFoundException;
+    Order lastOrder() throws SQLException, ClassNotFoundException;
 
-    OrderDto getOrder(String id) throws SQLException, ClassNotFoundException;
+    Order getOrder(String id) throws SQLException, ClassNotFoundException;
 
 }

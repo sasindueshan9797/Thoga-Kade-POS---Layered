@@ -1,8 +1,9 @@
 package bo.custom.impl;
 
 import bo.custom.CustomerBo;
+import dao.DaoFactory;
 import dao.custom.CustomerDao;
-import dao.custom.Impl.CustomerDaoImpl;
+import dao.util.FactoryType;
 import dto.CustomerDto;
 import entity.Customer;
 
@@ -12,7 +13,7 @@ import java.util.List;
 
 public class CustomerBoImpl implements CustomerBo {
 
-    private CustomerDao customerDao = new CustomerDaoImpl();
+    private CustomerDao customerDao = DaoFactory.getInstance().getBo(FactoryType.CUSTOMER);
 
     @Override
     public boolean saveCustomer(CustomerDto dto) throws SQLException, ClassNotFoundException {
@@ -63,6 +64,18 @@ public class CustomerBoImpl implements CustomerBo {
             customer.getName(),
             customer.getAddress(),
             customer.getSalary()
+        );
+    }
+
+    @Override
+    public CustomerDto getCustomer(String id) throws SQLException, ClassNotFoundException {
+        Customer customer = customerDao.getCustomer(id);
+
+        return new CustomerDto(
+                customer.getId(),
+                customer.getName(),
+                customer.getAddress(),
+                customer.getSalary()
         );
     }
 }

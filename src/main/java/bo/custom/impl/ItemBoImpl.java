@@ -1,11 +1,10 @@
 package bo.custom.impl;
 
 import bo.custom.ItemBo;
-import dao.custom.Impl.ItemDaoImpl;
+import dao.DaoFactory;
 import dao.custom.ItemDao;
-import dto.CustomerDto;
+import dao.util.FactoryType;
 import dto.ItemDto;
-import entity.Customer;
 import entity.Item;
 
 import java.sql.SQLException;
@@ -14,7 +13,7 @@ import java.util.List;
 
 public class ItemBoImpl implements ItemBo {
 
-    ItemDao itemDao = new ItemDaoImpl();
+    ItemDao itemDao = DaoFactory.getInstance().getBo(FactoryType.ITEM);
 
     @Override
     public boolean saveItem(ItemDto dto) throws SQLException, ClassNotFoundException {
@@ -67,5 +66,19 @@ public class ItemBoImpl implements ItemBo {
                 item.getUnitPrice(),
                 item.getQtyOnHand()
         );
+    }
+
+    @Override
+    public ItemDto getItem(String code) throws SQLException, ClassNotFoundException {
+
+        Item item = itemDao.getItem(code);
+
+        return new ItemDto(
+                item.getCode(),
+                item.getDescription(),
+                item.getUnitPrice(),
+                item.getQtyOnHand()
+        );
+
     }
 }

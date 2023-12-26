@@ -1,12 +1,13 @@
 package controller;
 
+import bo.BoFactory;
 import bo.custom.ItemBo;
-import bo.custom.impl.ItemBoImpl;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXTreeTableView;
 import com.jfoenix.controls.RecursiveTreeItem;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
+import dao.util.FactoryType;
 import dto.ItemDto;
 import dto.tm.ItemTm;
 import javafx.collections.FXCollections;
@@ -24,8 +25,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import dao.custom.Impl.ItemDaoImpl;
-import dao.custom.ItemDao;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -67,7 +66,7 @@ public class ItemFormController {
     @FXML
     private JFXTextField txtSearch;
 
-    private ItemBo itemBo = new ItemBoImpl();
+    private ItemBo itemBo = BoFactory.getInstance().getBo(FactoryType.ITEM);
 
     public void initialize(){
         colCode.setCellValueFactory(new TreeItemPropertyValueFactory<>("code"));

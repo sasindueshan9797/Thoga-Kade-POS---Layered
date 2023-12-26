@@ -1,5 +1,6 @@
 package dao.custom.Impl;
 
+import dao.util.CrudUtil;
 import db.DBConnection;
 import dto.OrderDetailsDto;
 import dao.custom.OrderDetailsDao;
@@ -17,35 +18,25 @@ public class OrderDetailsDaoImpl implements OrderDetailsDao {
 
         boolean isDetailsSaved = true;
 
-        for (OrderDetail dto:list) {
+        for (OrderDetail entity:list) {
             String sql = "INSERT INTO orderdetail VALUES(?,?,?,?)";
-            PreparedStatement pstm = DBConnection.getInstance().getConnection().prepareStatement(sql);
-            pstm.setString(1,dto.getOrderId());
-            pstm.setString(2,dto.getItemCode());
-            pstm.setInt(3,dto.getQty());
-            pstm.setDouble(4,dto.getUnitPrice());
 
-            if(!(pstm.executeUpdate()>0)){
+
+            boolean b = CrudUtil.execute(sql, entity.getOrderId(), entity.getItemCode(), entity.getQty(), entity.getUnitPrice());
+
+            if(!(b)){
                 isDetailsSaved = false;
             }
         }
         return isDetailsSaved;
     }
 
-    @Override
-    public boolean deleteOrderDetail(String id) throws SQLException, ClassNotFoundException {
-        String sql = "DELETE from orderdetail WHERE orderid=?";
-        PreparedStatement pstm = DBConnection.getInstance().getConnection().prepareStatement(sql);
-        pstm.setString(1,id);
-        return pstm.executeUpdate()>0;
-    }
 
     @Override
     public OrderDetailsDto getOrderDetail(String id) throws SQLException, ClassNotFoundException {
         String sql = "SELECT * FROM orderdetail WHERE orderid=?";
-        PreparedStatement pstm = DBConnection.getInstance().getConnection().prepareStatement(sql);
-        pstm.setString(1,id);
-        ResultSet resultSet = pstm.executeQuery();
+
+        ResultSet resultSet = CrudUtil.execute(sql,id);
 
         if (resultSet.next()){
             return new OrderDetailsDto(
@@ -72,16 +63,17 @@ public class OrderDetailsDaoImpl implements OrderDetailsDao {
 
     @Override
     public boolean delete(String value) throws SQLException, ClassNotFoundException {
-        return false;
+        String sql = "DELETE from orderdetail WHERE orderid=?";
+
+        return CrudUtil.execute(sql,value);
     }
 
     @Override
     public List<OrderDetail> getAll() throws SQLException, ClassNotFoundException {
         List<OrderDetail> list = new ArrayList<>();
-
         String sql = "SELECT * FROM orderdetail";
-        PreparedStatement pstm = DBConnection.getInstance().getConnection().prepareStatement(sql);
-        ResultSet resultSet = pstm.executeQuery();
+
+        ResultSet resultSet = CrudUtil.execute(sql);
 
         while (resultSet.next()){
             list.add(new OrderDetail(

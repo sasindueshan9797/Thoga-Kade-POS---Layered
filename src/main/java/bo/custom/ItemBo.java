@@ -18,4 +18,6 @@ public interface ItemBo extends SuperBo {
     List<ItemDto> allItems() throws SQLException, ClassNotFoundException;
 
     ItemDto lastItem() throws SQLException, ClassNotFoundException;
+
+    ItemDto getItem(String code) throws SQLException, ClassNotFoundException;
 }

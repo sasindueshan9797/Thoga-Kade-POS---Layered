@@ -1,10 +1,16 @@
 package controller;
 
+import bo.BoFactory;
+import bo.custom.CustomerBo;
+import bo.custom.ItemBo;
+import bo.custom.OrderBo;
+import bo.custom.OrderDetailBo;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXTreeTableView;
 import com.jfoenix.controls.RecursiveTreeItem;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
+import dao.util.FactoryType;
 import dto.OrderDetailsDto;
 import dto.OrderDto;
 import dto.tm.OrderDetailTm;
@@ -21,14 +27,6 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.stage.Stage;
-import dao.custom.CustomerDao;
-import dao.custom.Impl.CustomerDaoImpl;
-import dao.custom.Impl.ItemDaoImpl;
-import dao.custom.Impl.OrderDetailsDaoImpl;
-import dao.custom.Impl.OrderDaoImpl;
-import dao.custom.ItemDao;
-import dao.custom.OrderDetailsDao;
-import dao.custom.OrderDao;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -66,11 +64,10 @@ public class OrderDetailFormController {
     private JFXTextField txtSearch;
 
 
-
-    private OrderDetailsDao orderDetailsDao = new OrderDetailsDaoImpl();
-    private OrderDao orderDao = new OrderDaoImpl();
-    private ItemDao itemDao = new ItemDaoImpl();
-    private CustomerDao customerDao = new CustomerDaoImpl();
+    private OrderDetailBo orderDetailsBo = BoFactory.getInstance().getBo(FactoryType.ORDER_DETAIL);
+    private OrderBo orderBo = BoFactory.getInstance().getBo(FactoryType.ORDER);
+    private ItemBo itemBo = BoFactory.getInstance().getBo(FactoryType.ITEM);
+    private CustomerBo customerBo = BoFactory.getInstance().getBo(FactoryType.CUSTOMER);
 
     public void initialize(){
         colOrderId.setCellValueFactory(new TreeItemPropertyValueFactory<>("orderId"));
@@ -93,8 +90,8 @@ public class OrderDetailFormController {
                     if (newValue != null) {
                         try {
 
-                            txtItemDetails.setText("Selected: " + (itemDao.getItem(newValue.getValue().getItemCode()).getDesc()));
-                            txtCustomerDetails.setText("Selected: " + (customerDao.getCustomer(newValue.getValue().getCustId()).getName()));
+                            txtItemDetails.setText("Selected: " + (itemBo.getItem(newValue.getValue().getItemCode()).getDesc()));
+                            txtCustomerDetails.setText("Selected: " + (customerBo.getCustomer(newValue.getValue().getCustId()).getName()));
 
                         } catch (SQLException | ClassNotFoundException e) {
                             throw new RuntimeException(e);
@@ -142,12 +139,12 @@ public class OrderDetailFormController {
         ObservableList<OrderDetailTm> tmList = FXCollections.observableArrayList();
 
         try {
-            List<OrderDetailsDto> detailDtoList = orderDetailsDao.allOrderDetails();
+            List<OrderDetailsDto> detailDtoList = orderDetailsBo.getAll();
 
             for (OrderDetailsDto dto :detailDtoList) {
 
                 JFXButton btn = new JFXButton("Delete");
-                OrderDto order = orderDao.getOrder(dto.getOrderId());
+                OrderDto order = orderBo.getOrder(dto.getOrderId());
                 Double total = dto.getQty()*dto.getUnitPrice();
 
                 OrderDetailTm orderDeatail = new OrderDetailTm(
@@ -178,7 +175,7 @@ public class OrderDetailFormController {
 
     private void deleteOrderDetail(String id) {
         try {
-            boolean isDeleted = orderDetailsDao.deleteOrderDetail(id);
+            boolean isDeleted = orderDetailsBo.deleteOrderDetail(id);
             if (isDeleted){
                 new Alert(Alert.AlertType.INFORMATION,"Item Deleted!").show();
                 loadOrderDetailTable();
